@@ -1,0 +1,103 @@
+<style>
+    .search-btn {
+        background-color: #fe424d;
+        color: #fff;
+        border-radius: 25px;
+        padding: 0 1rem 0 1rem;
+    }
+
+    .search-btn:hover {
+        background-color: #fe424d;
+        color: #fff;
+    }
+
+    .search-btn i {
+        display: inline;
+        margin-right: 0.5rem;
+    }
+
+    .search-inp {
+        border-radius: 25px;
+        padding: 0.5rem 3rem 0.5rem 3rem;
+        font-size: 1rem;
+    }
+</style>
+
+
+<nav class="navbar navbar-expand-md bg-body-light border-bottom sticky-top">
+    <!-- sticky-top bootstrap ki ek class hai jo navbar ko fix krne ke liye hai jisse ki scroll krne par navbar move na kre. -->
+    <div class="container-fluid">
+        <a class="navbar-brand" href="/listings"><i class="fa-regular fa-compass"></i></a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+
+            <div class="navbar-nav">
+                <a class="nav-link" href="/listings">Explore</a>
+            </div>
+
+            <div class="navbar-nav ms-auto">
+                <form class="d-flex position-relative" role="search" action="/listings/search" method="GET">
+                    <input id="search-input" class="form-control me-2 search-inp dropdown-toggle" type="search"
+                        placeholder="Search destination" name="location"
+                        value="<%= typeof location !== 'undefined' ? location : '' %>" aria-label="Search"
+                        autocomplete="off">
+
+                    <button class="btn search-btn" type="submit">
+                        <i class="fa-solid fa-magnifying-glass"></i>Search
+                    </button>
+
+                    <ul id="suggestions" class="list-group position-absolute w-100 mt-5" style="z-index: 1000;"></ul>
+                </form>
+            </div>
+
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="/listings/new" style="margin-right: 1rem; font-size: medium;">Wanderlust your home</a>
+                <% if(!currUser) { %>
+                    <a class="nav-link" href="/signup"><b>Sign up</b></a>
+                    <a class="nav-link" href="/login"><b>Log in</b></a>
+                    <% } %>
+                        <% if(currUser) { %>
+                            <a class="nav-link" href="/logout"><b>Log out</b></a>
+                            <% } %>
+            </div>
+
+        </div>
+    </div>
+</nav>
+
+<script>
+    const MAPBOX_TOKEN = '<%= mapToken %>';
+    const input = document.getElementById('search-input');
+    const suggestions = document.getElementById('suggestions');
+
+    input.addEventListener('input', async () => {
+        const query = input.value;
+        if (!query.trim()) return (suggestions.innerHTML = '');
+
+        const res = await fetch(
+            `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(query)}.json?access_token=${MAPBOX_TOKEN}&limit=5`
+        );
+        const data = await res.json();
+
+        suggestions.innerHTML = '';
+        data.features.forEach((place) => {
+            const li = document.createElement('li');
+            li.classList.add('list-group-item');
+            li.style.cursor = 'pointer';
+            li.textContent = place.place_name;
+            li.addEventListener('click', () => {
+                input.value = place.place_name;
+                suggestions.innerHTML = '';
+            });
+            suggestions.appendChild(li);
+        });
+    });
+
+    document.addEventListener('click', (e) => {
+        if (!suggestions.contains(e.target) && e.target !== input) {
+            suggestions.innerHTML = '';
+        }
+    }); 
+</script>
