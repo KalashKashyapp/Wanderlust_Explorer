@@ -5,7 +5,7 @@ if (process.env.NODE_ENV != "production") {
 const express = require("express");
 const app = express();
 const mongoose = require("mongoose");
-const path = require("path");
+const path = require('path');
 const methodOverride = require("method-override");
 const ejsMate = require("ejs-mate");  //this is for creating templates or layouts.
 const ExpressError = require("./utils/ExpressError.js");
@@ -37,12 +37,12 @@ async function main() {
     await mongoose.connect(dbUrl);
 }
 
-app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
+app.set("view engine", "ejs");
 app.use(express.urlencoded({extended: true}));
 app.use(methodOverride("_method"));
 app.engine("ejs", ejsMate);        
-app.use(express.static(path.join(__dirname, "/public")));  //isse ham static files use kr skte hain jaise css files public folder ki.
+app.use(express.static(path.join(__dirname, 'public')));  //isse ham static files use kr skte hain jaise css files public folder ki.
 
 const store = MongoStore.create({
     mongoUrl: dbUrl,
